@@ -25,7 +25,7 @@ else
 
     # Make sure that output folder is R/O if the network drive disconnects
     mkdir -p "${OUTPUT}"
-    chmod -R -w "${OUTPUT}"
+    chmod -R -w "${OUTPUT}" 2> /dev/null
 
     echo -e "${COLOR_YELLOW}Testing for root access; please enter the password for THIS PC if asked${COLOR_END}"
     while ! sudo true;
