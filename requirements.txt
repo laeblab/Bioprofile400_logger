@@ -1,2 +1,3 @@
-pandas
-pyserial
+coloredlogs==15.0
+pyserial==3.5
+xlsxwriter==1.3.7
