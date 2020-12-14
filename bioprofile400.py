@@ -53,7 +53,7 @@ class AstmReader:
 
     def __iter__(self):
         while True:
-            yield (time.time(), self.astm.get_data())
+            yield (datetime.datetime.now(), self.astm.get_data())
 
 
 class AstmPlayback:
