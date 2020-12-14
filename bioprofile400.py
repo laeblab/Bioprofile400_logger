@@ -350,9 +350,9 @@ def main(argv):
                 procs.remove((cmd, proc))
 
                 if proc.wait():
-                    logger.error("Cmd %r failed with rc %i", cmd, proc.returncode)
+                    logger.error("Cmd failed with rc %i: %s", proc.returncode, cmd)
                 else:
-                    logger.debug("Cmd %r completed succesfully", cmd)
+                    logger.debug("Cmd completed succesfully: %s", cmd)
 
         # Status messages may occur at the end (and start?) of lines of data
         for msg in STATUS_MESSAGES:
@@ -411,6 +411,15 @@ def main(argv):
             message = []
 
         time.sleep(args.instrument_sleep)
+
+    logger.info("Waiting for %i commands to finish ..", len(procs))
+    for idx, (cmd, proc) in enumerate(procs, start=1):
+        if proc.wait():
+            logger.error("Cmd %i failed with rc %i: %s", idx, proc.returncode, cmd)
+        else:
+            logger.info("Cmd %i completed succesfully: %s", idx, cmd)
+
+    logger.info("Done!")
 
     return 0
 
