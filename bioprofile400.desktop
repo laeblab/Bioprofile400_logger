@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Exec=bash start.sh
+Name=Start Bioprofile Logger
+GenericName=Bioprofile
+Comment=
+Encoding=UTF-8
+Terminal=true
+Type=Application
+Categories=Application;Network;
+Icon=player_play
