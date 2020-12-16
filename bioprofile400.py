@@ -332,7 +332,23 @@ def main_core(args, logger):
     args.cache.mkdir(parents=True, exist_ok=True)
 
     # Sync in case the output folder was inaccessible at any point during the last run.
-    command = ["rsync", "-a", "--exclude", "*.raw", f"{args.cache}/", f"{args.output}"]
+    command = [
+        "rsync",
+        "-a",
+        # Ignore existing files, even if they have been changed in `output`
+        "--ignore-existing",
+        # Include directories
+        "--include",
+        "*/",
+        # Include XLSX files
+        "--include",
+        "*.xlsx",
+        # Exclude everything else
+        "--exclude",
+        "*",
+        f"{args.cache}/",
+        f"{args.output}/",
+    ]
     procs = [popen(command)]
 
     if args.instrument_playback is None:
