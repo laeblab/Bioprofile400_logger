@@ -322,10 +322,13 @@ def parse_args(argv):
     return parser.parse_args(argv)
 
 
-def main(argv):
-    args = parse_args(argv)
-    logger = setup_logging(args)
+def log_exception(logger, error, when=""):
+    logger.error("Unhandled exception%s%s:", " " if when else "", when)
+    for line in traceback.format_exc().splitlines():
+        logger.error("%s", line)
 
+
+def main_core(args, logger):
     args.cache.mkdir(parents=True, exist_ok=True)
 
     # Sync in case the output folder was inaccessible at any point during the last run.
@@ -386,9 +389,7 @@ def main(argv):
                 try:
                     write_playback(filepath, timestamp, message)
                 except Exception as error:
-                    logger.error("Unhandled exception %r", error)
-                    for line in traceback.format_exc().splitlines():
-                        logger.error("%s", line)
+                    log_exception(logger, error, "when saving raw data")
 
                 filepath = cache / timestamp.strftime("%Y-%m-%d_%H_%M_%S_%f.xlsx")
                 logger.info("Writing results to %s", filepath)
@@ -404,9 +405,7 @@ def main(argv):
                     cmd = ["rsync", "-a", filepath, f"{destination}/"]
                     procs.append(popen(cmd))
                 except Exception as error:
-                    logger.error("Unhandled exception %r", error)
-                    for line in traceback.format_exc().splitlines():
-                        logger.error("%s", line)
+                    log_exception(logger, error, "when saving XLSX file")
 
             message = []
 
@@ -422,6 +421,22 @@ def main(argv):
     logger.info("Done!")
 
     return 0
+
+
+def main(argv):
+    args = parse_args(argv)
+    logger = setup_logging(args)
+
+    try:
+        return main_core(args, logger)
+    except KeyboardInterrupt as error:
+        log_exception(logger, error)
+        logger.error("Terminated by CTRL + C")
+    except Exception as error:
+        log_exception(logger, error)
+        logger.error("Logger terminated due to unhandled exception")
+
+    return 1
 
 
 if __name__ == "__main__":
