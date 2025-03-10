@@ -16,17 +16,15 @@ NETWORK_DRIVE=""
 
 
 echo; echo
-if grep -q "${OUTPUT}" /proc/mounts;
+# `test -e` is used to detect cases where the connection has been lost
+if grep -q "${OUTPUT}" /proc/mounts && test -e "${OUTPUT}";
 then
     echo -e "${COLOR_GREEN}Network folder is already mounted!${COLOR_END}"
 else
     echo -e "${COLOR_YELLOW}Network folder is not online. Starting setup ..${COLOR_END}"
     echo; echo
 
-    # Make sure that output folder is R/O if the network drive disconnects
-    mkdir -p "${OUTPUT}"
-    chmod -R -w "${OUTPUT}" 2> /dev/null
-
+    # To simplify usage, we split asking for the root password into its own step
     echo -e "${COLOR_YELLOW}Testing for root access; please enter the password for THIS PC if asked${COLOR_END}"
     while ! sudo true;
     do
@@ -34,6 +32,13 @@ else
     done
 
     echo -e "${COLOR_GREEN}OK! Password entry succesful..${COLOR_END}"
+
+    # Unmount the folder in case the connectin was lost
+    sudo umount -l "${OUTPUT}" 2> /dev/null
+
+    # Make sure that output folder is R/O if the network drive disconnects
+    mkdir -p "${OUTPUT}"
+    chmod -R -w "${OUTPUT}" 2> /dev/null
 
     echo; echo
     username=
